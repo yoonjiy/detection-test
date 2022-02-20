@@ -66,7 +66,7 @@
         const prediction = await model.predict(posenetOutput);
         var audio;
         if(count%10 == 0){
-                audio = new Audio("success.mp3")
+                audio = new Audio(URL + "success.mp3")
                 audio.play()
                 //시나리오 넘어감
         }
@@ -74,7 +74,7 @@
         if(pediction[0].probability.toFixed(2) > 0.80){ 
             if(status = close){
                 count++
-                audio = new Audio(count%10 + ".mp3")
+                audio = new Audio(URL + count%10 + ".mp3")
                 audio.play()
             }
             status = "open"
