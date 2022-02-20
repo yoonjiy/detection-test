@@ -65,10 +65,10 @@
         // Prediction 2: run input through teachable machine classification model
         const prediction = await model.predict(posenetOutput);
         var audio;
-        if(prediction[0].probability.toFixed(2) > 0.90){ 
+        if(prediction[0].probability.toFixed(2) > 0.90){ //open 상태
             status = "open";
-        } else if(prediction[1].probability.toFixed(2) > 0.90){
-            if(status = "open"){
+        } else if(prediction[1].probability.toFixed(2) > 0.90){ //close 상태
+            if(status == "open"){ 
                 count++;
                 audio = new Audio(URL + count%10 + ".mp3");
                 audio.play();
