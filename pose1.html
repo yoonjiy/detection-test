@@ -77,12 +77,6 @@
             status = "close"
         }
 
-        if(count%10 == 0){
-            audio = new Audio(URL + "success.mp3")
-            audio.play()
-            //시나리오 넘어감
-    }
-
         for (let i = 0; i < maxPredictions; i++) {
             const classPrediction =
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
