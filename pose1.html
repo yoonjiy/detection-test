@@ -66,7 +66,7 @@
         const prediction = await model.predict(posenetOutput);
         var audio;
 
-        if(ptrediction[0].probability.toFixed(2) > 0.80){ 
+        if(prediction[0].probability.toFixed(2) > 0.80){ 
             if(status = close){
                 count++
                 audio = new Audio(URL + coun%10 + ".mp3")
