@@ -64,12 +64,15 @@
                 audio.play();
             }
             status = "stand";
-        } else if(prediction[1].probability.toFixed(2) > 0.90){ //squat 상태
+        } else if(prediction[1].probability.toFixed(2) == 1.00){ //squat 상태
             status = "squat";
-        } else{
-            status = "bent"
-            audio = new Audio(URL + "fail.mp3");
-            audio.play();
+        } else if(prediction[2].probability.toFixed(2) == 1.00){
+            if(status=="squat"){
+                count++;
+                audio = new Audio(URL + "fail.mp3");
+                audio.play();
+            }
+            status = "bent";
         }
 
         for (let i = 0; i < maxPredictions; i++) {
