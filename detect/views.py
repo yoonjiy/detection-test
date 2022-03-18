@@ -1,37 +1,57 @@
 import time
 
 from django.shortcuts import render
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponse
 import cv2
 from rest_framework.response import Response
 
 from my_model_3 import cnn
 from keras.preprocessing import image
 import numpy as np
-from imutils.video import VideoStream
-from imutils.video import FPS
+from imutils.video import VideoStream, FPS
 
 model = cnn.emotion_recognition((48, 48, 1))
 emotion_classifier = model.load_weights('my_model_3/emotion_weights_30.hdf5')
 face_detection = cv2.CascadeClassifier('my_model_3/haarcascade_frontalface_default.xml')
 label_dict = {0: 'Angry', 1: 'Disgust', 2: 'Fear', 3: 'Happiness', 4: 'Sad', 5: 'Surprise', 6: 'Neutral'}
 
+
 def index(request):
     context = {}
     return render(request, "index.html", context)
 
 
+def show_result(dict):
+    dict = sorted(dict.items(), key=lambda item: item[1], reverse=True)
+    emotion = dict[0][0]
+    print(emotion)
+    # response 반환하기
+
+
+def count_result(cnt, emotion):
+    if emotion == 'Angry':
+        cnt['Angry'] += 1
+    elif emotion == 'Happiness':
+        cnt['Happiness'] += 1
+    elif emotion == 'Sad':
+        cnt['Sad'] += 1
+    else:
+        cnt['Neutral'] += 1
+
+
 class EmotionDetect(object):
     def __init__(self):
-        self.vs = VideoStream(src=0).start()
+        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        # self.vs = VideoStream(src=0).start()
         # start the FPS throughput estimator
-        self.fps = FPS().start()
+        # self.fps = FPS().start()
 
     def __del__(self):
+        self.video.release()
         cv2.destroyAllWindows()
 
     def get_frame(self, start, emotion_cnt):
-        cap_image = self.vs.read()
+        _, cap_image = self.video.read()
         cap_image = cv2.flip(cap_image, 1)
         cap_img_gray = cv2.cvtColor(cap_image, cv2.COLOR_BGR2GRAY)
         faces = face_detection.detectMultiScale(cap_img_gray, 1.3, 5)
@@ -54,10 +74,14 @@ class EmotionDetect(object):
 
             elapsed = time.time() - start
 
-            if (elapsed > 5):
-                count_result(emotion_cnt, emotion_prediction, elapsed)
+            if elapsed > 5:
+                count_result(emotion_cnt, emotion_prediction)
 
-        self.fps.update()
+            if elapsed >= 15:
+                show_result(emotion_cnt)
+                return "END"
+
+        # self.fps.update()
         ret, jpeg = cv2.imencode('.jpg', cap_image)
         return jpeg.tobytes()
 
@@ -67,27 +91,12 @@ def gen(camera):
     start = time.time()
     while True:
         frame = camera.get_frame(start, emotion_cnt)
-        yield (b'--frame\r\n'
+        if frame=="END":
+            del camera
+            break
+        else:
+            yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
-
-def show_result(cnt):
-    dict = sorted(cnt.items(), key=lambda item: item[1], reverse=True)
-    print(dict[0])
-    # response 반환하기
-
-
-def count_result(cnt, emotion, elapsed):
-    if elapsed >= 15:
-        show_result(cnt)
-    elif emotion == 'Angry':
-        cnt['Angry'] += 1
-    elif emotion == 'Happiness':
-        cnt['Happiness'] += 1
-    elif emotion == 'Sad':
-        cnt['Sad'] += 1
-    else:
-        cnt['Neutral'] += 1
 
 
 def detect(request):
