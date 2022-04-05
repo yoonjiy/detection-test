@@ -21,10 +21,12 @@ def index(request):
     return render(request, "index.html", context)
 
 
-def show_result(dict):
+def show_result(request, dict):
     dict = sorted(dict.items(), key=lambda item: item[1], reverse=True)
     emotion = dict[0][0]
     print(emotion)
+    context = {'emotion': emotion}
+    render(request, 'result.html', context)
     # response 반환하기
 
 
@@ -78,7 +80,7 @@ class EmotionDetect(object):
                 count_result(emotion_cnt, emotion_prediction)
 
             if elapsed >= 15:
-                show_result(emotion_cnt)
+                show_result(dict=emotion_cnt)
                 return "END"
 
         # self.fps.update()
