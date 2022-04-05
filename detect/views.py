@@ -21,17 +21,21 @@ def index(request):
     return render(request, "index.html", context)
 
 
-def show_result(dict):
-    dict = sorted(dict.items(), key=lambda item: item[1], reverse=True)
-    emotion = dict[0][0]
+def show_result(request):
     context = {'emotion': emotion}
-    print(context)
-    render('result.html', context)
-    # response 반환하기
+    return render(request, 'result.html', context)
+
+
+def get_result(dict):
+    dict = sorted(dict.items(), key=lambda item: item[1], reverse=True)
+    global emotion
+    emotion = dict[0][0]
+    if emotion == 'Neutral':
+        emotion = dict[1][0]
 
 
 def count_result(cnt, emotion):
-    if emotion == 'Angry':
+    if emotion in ['Angry', 'Fear', 'Disgust']:
         cnt['Angry'] += 1
     elif emotion == 'Happiness':
         cnt['Happiness'] += 1
@@ -76,11 +80,11 @@ class EmotionDetect(object):
 
             elapsed = time.time() - start
 
-            if elapsed > 5:
+            if elapsed > 3:
                 count_result(emotion_cnt, emotion_prediction)
 
-            if elapsed >= 15:
-                show_result(dict=emotion_cnt)
+            if elapsed >= 10:
+                get_result(dict=emotion_cnt)
                 return "END"
 
         # self.fps.update()
@@ -93,7 +97,7 @@ def gen(camera):
     start = time.time()
     while True:
         frame = camera.get_frame(start, emotion_cnt)
-        if frame=="END":
+        if frame == "END":
             del camera
             break
         else:
