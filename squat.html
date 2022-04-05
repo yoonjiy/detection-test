@@ -18,7 +18,7 @@
     // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/pose
 
     // the link to your model provided by Teachable Machine export panel
-    const URL = "./my_model/";
+    const URL = "./my_model_4/";
     let model, webcam, ctx, labelContainer, maxPredictions;
 
     async function init() {
@@ -55,12 +55,36 @@
         window.requestAnimationFrame(loop);
     }
 
+    var status = "stand";
+    var count = 0;
+
     async function predict() {
         // Prediction #1: run input through posenet
         // estimatePose can take in an image, video or canvas html element
         const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
         // Prediction 2: run input through teachable machine classification model
         const prediction = await model.predict(posenetOutput);
+
+        var audio;
+        if(count==10){
+            count = 0;
+            audio = new Audio(URL + "success.mp3");
+            audio.play();
+        }
+        if(prediction[0].probability.toFixed(2) > 0.90){ //stand 상태
+            if(status == "squat"){
+                count++;
+                audio = new Audio(URL + count%10 + ".mp3");
+                audio.play();
+            }
+            status = "stand";
+        } else if(prediction[1].probability.toFixed(2) == 1.00){ //squat 상태
+            status = "squat";
+        } else if(prediction[2].probability.toFixed(2) > 0.90){ //x 표시
+            status = "x";
+            audio = new Audio(URL + "fail.mp3");
+            audio.play();
+        }
 
         for (let i = 0; i < maxPredictions; i++) {
             const classPrediction =

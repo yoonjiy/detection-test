@@ -21,12 +21,12 @@ def index(request):
     return render(request, "index.html", context)
 
 
-def show_result(request, dict):
+def show_result(dict):
     dict = sorted(dict.items(), key=lambda item: item[1], reverse=True)
     emotion = dict[0][0]
-    print(emotion)
     context = {'emotion': emotion}
-    render(request, 'result.html', context)
+    print(context)
+    render('result.html', context)
     # response 반환하기
 
 
