@@ -96,6 +96,7 @@
             status = 2;
             check_time = setInterval(() => {
                 if (keep_time == 5) {
+                    keep_time = 0;
                     clearInterval(check_time);
                     webcam.stop();
                 }
