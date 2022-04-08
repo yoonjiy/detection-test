@@ -21,6 +21,9 @@
     const URL = "./my_model_4/";
     let model, webcam, ctx, labelContainer, maxPredictions;
 
+    let status = 0; //0:stand, 1:squat, 2:x
+    let keep_time = 0; //x 유지 시간
+
     async function init() {
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
@@ -47,7 +50,10 @@
         for (let i = 0; i < maxPredictions; i++) { // and class labels
             labelContainer.appendChild(document.createElement("div"));
         }
+
     }
+
+
 
     async function loop(timestamp) {
         webcam.update(); // update the webcam frame
@@ -55,8 +61,7 @@
         window.requestAnimationFrame(loop);
     }
 
-    var status = "stand";
-    var count = 0;
+    let count = 0;
 
     async function predict() {
         // Prediction #1: run input through posenet
@@ -65,23 +70,37 @@
         // Prediction 2: run input through teachable machine classification model
         const prediction = await model.predict(posenetOutput);
 
-        var audio;
+        let audio;
+        let check_time;
         if(count==10){
             count = 0;
             audio = new Audio(URL + "success.mp3");
             audio.play();
         }
         if(prediction[0].probability.toFixed(2) > 0.90){ //stand 상태
-            if(status == "squat"){
+            if(status==2){
+                keep_time = 0;
+            }
+            if(status == 1){
                 count++;
                 audio = new Audio(URL + count%10 + ".mp3");
                 audio.play();
             }
-            status = "stand";
+            status = 0;
         } else if(prediction[1].probability.toFixed(2) == 1.00){ //squat 상태
-            status = "squat";
-        } else if(prediction[2].probability.toFixed(2) > 0.90){ //x 표시
-            status = "x";
+            if(status==2){
+                keep_time = 0;
+            }
+            status = 1;
+        } else if(prediction[2].probability.toFixed(2) == 1.00){ //x 표시
+            status = 2;
+            check_time = setInterval(() => {
+                if (keep_time == 5) {
+                    clearInterval(check_time);
+                    webcam.stop();
+                }
+                keep_time++;
+            }, 1000);
             audio = new Audio(URL + "fail.mp3");
             audio.play();
         }
