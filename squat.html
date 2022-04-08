@@ -51,6 +51,16 @@
             labelContainer.appendChild(document.createElement("div"));
         }
 
+        let check_time = setInterval(() => {
+                if (keep_time == 5) {
+                    keep_time = 0;
+                    new Audio(URL + "fail.mp3").play();
+                    clearInterval(check_time);
+                    webcam.stop();
+                }
+                keep_time++;
+            }, 1000);
+
     }
 
 
@@ -78,9 +88,7 @@
             audio.play();
         }
         if(prediction[0].probability.toFixed(2) > 0.90){ //stand 상태
-            if(status==2){
-                keep_time = 0;
-            }
+            keep_time = 0;
             if(status == 1){
                 count++;
                 audio = new Audio(URL + count%10 + ".mp3");
@@ -88,22 +96,10 @@
             }
             status = 0;
         } else if(prediction[1].probability.toFixed(2) == 1.00){ //squat 상태
-            if(status==2){
-                keep_time = 0;
-            }
+            keep_time = 0;
             status = 1;
         } else if(prediction[2].probability.toFixed(2) == 1.00){ //x 표시
             status = 2;
-            check_time = setInterval(() => {
-                if (keep_time == 5) {
-                    keep_time = 0;
-                    clearInterval(check_time);
-                    webcam.stop();
-                }
-                keep_time++;
-            }, 1000);
-            audio = new Audio(URL + "fail.mp3");
-            audio.play();
         }
 
         for (let i = 0; i < maxPredictions; i++) {
