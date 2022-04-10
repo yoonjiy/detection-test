@@ -84,8 +84,9 @@
         let check_time;
         if(count==10){
             count = 0;
-            audio = new Audio(URL + "success.mp3");
-            audio.play();
+            setTimeout(function() {
+                new Audio(URL + "success.mp3").play();
+            }, 1000);
         }
         if(prediction[0].probability.toFixed(2) > 0.90){ //stand 상태
             keep_time = 0;
@@ -95,7 +96,7 @@
                 audio.play();
             }
             status = 0;
-        } else if(prediction[1].probability.toFixed(2) == 1.00){ //squat 상태
+        } else if(prediction[1].probability.toFixed(2) > 0.50){ //squat 상태
             keep_time = 0;
             status = 1;
         } else if(prediction[2].probability.toFixed(2) == 1.00){ //x 표시
