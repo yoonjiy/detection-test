@@ -81,9 +81,9 @@
         const prediction = await model.predict(posenetOutput);
 
         let audio;
-        let check_time;
         if(count==10){
             count = 0;
+            webcam.stop();
             setTimeout(function() {
                 new Audio(URL + "success.mp3").play();
             }, 1000);
