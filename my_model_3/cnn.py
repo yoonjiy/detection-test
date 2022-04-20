@@ -1,41 +1,52 @@
+from keras.models import Sequential
+from keras.layers import Conv2D, BatchNormalization, MaxPooling2D, Activation, Flatten, Dense, Dropout
 
-from keras.layers import Conv2D, Input, BatchNormalization, MaxPooling2D, Activation, Flatten, Dense, Dropout
-from keras.models import Model
 
+def emotion_recognition():
+    model = Sequential()
 
-def emotion_recognition(input_shape):
-    X_input = Input(input_shape)
+    # Conv Block 1
+    model.add(Conv2D(64, (3, 3), padding='same', input_shape=(48, 48, 1)))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
 
-    X = Conv2D(32, kernel_size=(3, 3), strides=(1, 1), padding='valid')(X_input)
-    X = BatchNormalization(axis=3)(X)
-    X = Activation('relu')(X)
+    # Conv Block 2
+    model.add(Conv2D(128, (5, 5), padding='same'))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
 
-    X = Conv2D(64, (3, 3), strides=(1, 1), padding='same')(X)
-    X = BatchNormalization(axis=3)(X)
-    X = Activation('relu')(X)
+    # Conv Block 3
+    model.add(Conv2D(512, (3, 3), padding='same'))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
 
-    X = MaxPooling2D((2, 2))(X)
+    # Conv Block 3
+    model.add(Conv2D(512, (3, 3), padding='same'))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
 
-    X = Conv2D(64, (3, 3), strides=(1, 1), padding='valid')(X)
-    X = BatchNormalization(axis=3)(X)
-    X = Activation('relu')(X)
+    model.add(Flatten())
 
-    X = Conv2D(128, (3, 3), strides=(1, 1), padding='same')(X)
-    X = BatchNormalization(axis=3)(X)
-    X = Activation('relu')(X)
+    # Fully connected Block 1
+    model.add(Dense(256))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(Dropout(0.25))
 
-    X = MaxPooling2D((2, 2))(X)
+    # Fully connected Block 2
+    model.add(Dense(512))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(Dropout(0.25))
 
-    X = Conv2D(128, (3, 3), strides=(1, 1), padding='valid')(X)
-    X = BatchNormalization(axis=3)(X)
-    X = Activation('relu')(X)
-
-    X = MaxPooling2D((2, 2))(X)
-    X = Flatten()(X)
-    X = Dense(200, activation='relu')(X)
-    X = Dropout(0.6)(X)
-    X = Dense(7, activation='softmax')(X)
-
-    model = Model(inputs=X_input, outputs=X)
+    model.add(Dense(7, activation='softmax'))
 
     return model

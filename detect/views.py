@@ -1,17 +1,16 @@
 import time
 
 from django.shortcuts import render
-from django.http import StreamingHttpResponse, HttpResponse
+from django.http import StreamingHttpResponse
 import cv2
-from rest_framework.response import Response
 
-from my_model_3 import cnn
+from my_model_3 import cnn, cnn2
 from keras.preprocessing import image
 import numpy as np
-from imutils.video import VideoStream, FPS
 
-model = cnn.emotion_recognition((48, 48, 1))
-emotion_classifier = model.load_weights('my_model_3/emotion_weights_30.hdf5')
+#model = cnn2.emotion_recognition((48, 48, 1))
+model = cnn.emotion_recognition()
+emotion_classifier = model.load_weights('my_model_3/emotion_weights_30_3.hdf5')
 face_detection = cv2.CascadeClassifier('my_model_3/haarcascade_frontalface_default.xml')
 label_dict = {0: 'Angry', 1: 'Disgust', 2: 'Fear', 3: 'Happiness', 4: 'Sad', 5: 'Surprise', 6: 'Neutral'}
 
