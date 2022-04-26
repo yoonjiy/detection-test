@@ -1,7 +1,7 @@
 import time
 
 from django.shortcuts import render
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, JsonResponse
 import cv2
 
 from my_model_3 import cnn, cnn2
@@ -22,7 +22,7 @@ def index(request):
 
 def show_result(request):
     context = {'emotion': emotion}
-    return render(request, 'result.html', context)
+    return JsonResponse(context);
 
 
 def get_result(dict):
